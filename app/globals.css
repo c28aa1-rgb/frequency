@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/* ── Frequency design system ───────────────────────────────────────── */
+@theme {
+  /* palette — each color carries one meaning */
+  --color-ink: #14172b;        /* text, near-black navy */
+  --color-ink-soft: #565c7a;   /* secondary text */
+  --color-paper: #f4f6fb;      /* app background */
+  --color-surface: #ffffff;    /* cards, panels */
+  --color-line: #e4e8f2;       /* hairlines, borders */
+  --color-signal: #3a66ff;     /* brand / primary action (connection) */
+  --color-signal-ink: #1f2a6b; /* signal text on light */
+  --color-live: #15c26b;       /* online presence + active call */
+  --color-alert: #ff5436;      /* incoming call / destructive */
+  --color-marigold: #ffc247;   /* pins + unread accents */
+
+  /* call mode (dark, cinematic) */
+  --color-console: #0b0e1c;
+  --color-console-soft: #161b30;
+
+  --font-display: var(--font-display), "Bricolage Grotesque", sans-serif;
+  --font-sans: var(--font-sans), "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-mono), "IBM Plex Mono", monospace;
+
+  --radius-card: 16px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* ── Dark mode ("night console") ───────────────────────────────────── */
+/* Reuses the in-call dark tones so the whole app feels of a piece.
+   Tailwind utilities read these vars, so overriding them flips the theme. */
+/* :root.dark out-specifies Tailwind's generated :root token block. */
+:root.dark {
+  color-scheme: dark;
+  --color-ink: #eaeefb;
+  --color-ink-soft: #9097b8;
+  --color-paper: #0a0d1a;
+  --color-surface: #141a2e;
+  --color-line: #242b45;
+  --color-signal: #5d83ff;       /* brightened for legibility on dark */
+  --color-signal-ink: #b9c8ff;
+  --color-live: #25d186;
+  --color-alert: #ff6750;
+  --color-marigold: #ffce63;
+}
+
+/* Animate the palette swap only while toggling — keeps hovers snappy. */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-animating,
+  html.theme-animating *,
+  html.theme-animating *::before,
+  html.theme-animating *::after {
+    transition: background-color 0.5s ease, border-color 0.5s ease,
+      color 0.5s ease, fill 0.5s ease, stroke 0.5s ease !important;
+  }
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* utility face: tracked-out, small, uppercase status labels */
+.u-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Signature: the live signal ────────────────────────────────────── */
+/* a pulsing ring that marks an online person */
+@keyframes signal-pulse {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  70%  { transform: scale(1.9); opacity: 0;    }
+  100% { transform: scale(1.9); opacity: 0;    }
+}
+.signal-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 2px solid var(--color-live);
+  animation: signal-pulse 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* waveform that animates during a live call */
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1);    }
+}
+.wave-bar {
+  transform-origin: center;
+  animation: wave 1s ease-in-out infinite;
+}
+
+/* near-expiry message: subtle fade to signal that it's about to vanish */
+.expiring {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-ring::before,
+  .wave-bar { animation: none; }
+}
+
+/* ── Skeleton loaders ──────────────────────────────────────────────── */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-line);
+  border-radius: 8px;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.13),
+    transparent
+  );
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+/* thin custom scrollbars to keep the console feel */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
